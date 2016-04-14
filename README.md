@@ -1,2 +1,2 @@
-# lru-cache-plus
-lru-cache with promises and async fetching
+# lru-cache-promise
+lru-cache with promises
