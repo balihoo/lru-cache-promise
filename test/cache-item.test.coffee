@@ -36,10 +36,12 @@ describe "cache-item tests", ->
   describe "fetch", ->
     context "when the item has a fetchFunction", ->
       context "and its value has not been fetched", ->
-        it "calls the fetchFunction", ->
+        it "calls the fetchFunction with the key as an argument", ->
           cacheItem = new CacheItem
             key: testKey
-            fetchFunction: -> testValue
+            fetchFunction: (key) ->
+              expect(key).toBe testKey
+              testValue
 
           cacheItem.fetch()
           .then (result) ->

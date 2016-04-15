@@ -1,10 +1,10 @@
 {
   "name": "lru-cache-promise",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "lru-cache with promises and async fetching",
   "main": "lib/lru-cache-promise.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node node_modules/gulp/bin/gulp.js test"
   },
   "repository": {
     "type": "git",

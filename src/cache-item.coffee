@@ -32,7 +32,7 @@ module.exports = class CacheItem
       # Call the fetch function
       @_status = status.fetching
 
-      Promise.resolve @fetchFunction()
+      Promise.resolve @fetchFunction @key
       .then (value) =>
         @value = value
         @_status = status.fetched
