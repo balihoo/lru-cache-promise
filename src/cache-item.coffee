@@ -21,29 +21,25 @@ module.exports = class CacheItem
         # Return the current value
         return @value
 
-      if @_status is status.fetching
-        # Add a promise to the list of promises awaiting fetch completion
-        p = new Promise (resolve, reject) =>
-          @resolvers.push resolve
-          @rejectors.push reject
+      # Add a promise to the list of promises awaiting fetch completion
+      p = new Promise (resolve, reject) =>
+        @resolvers.push resolve
+        @rejectors.push reject
 
-        return p
+      if @_status is status.initialized
+        # Call the fetch function
+        @_status = status.fetching
 
-      # Call the fetch function
-      @_status = status.fetching
+        Promise.resolve @fetchFunction @key
+        .then (value) =>
+          @value = value
+          @_status = status.fetched
 
-      Promise.resolve @fetchFunction @key
-      .then (value) =>
-        @value = value
-        @_status = status.fetched
+          r value for r in @resolvers
 
-        r value for r in @resolvers
+        .catch (err) =>
+          @_status = status.fetchFailed
 
-        value
+          r err for r in @rejectors
 
-      .catch (err) =>
-        @_status = status.fetchFailed
-
-        r err for r in @rejectors
-
-        throw err
+      return p

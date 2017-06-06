@@ -1,6 +1,6 @@
 {
   "name": "lru-cache-promise",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "lru-cache with promises and async fetching",
   "main": "lib/lru-cache-promise.js",
   "scripts": {
@@ -22,8 +22,8 @@
   },
   "homepage": "https://github.com/balihoo/lru-cache-promise#readme",
   "dependencies": {
-    "bluebird": "^3.3.5",
-    "lru-cache": "^4.0.1"
+    "bluebird": "^3.5.0",
+    "lru-cache": "^4.1.0"
   },
   "devDependencies": {
     "coffee-script": "^1.10.0",
