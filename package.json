@@ -1,6 +1,6 @@
 {
   "name": "lru-cache-promise",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "lru-cache with promises and async fetching",
   "main": "lib/lru-cache-promise.js",
   "scripts": {

@@ -17,6 +17,11 @@ module.exports = class CacheItem
 
   fetch: ->
     Promise.try =>
+      if @_status is status.fetchFailed
+        @_status = status.initialized
+        @resolvers = []
+        @rejectors = []
+
       if @_status is status.fetched or not @fetchFunction
         # Return the current value
         return @value
@@ -30,7 +35,8 @@ module.exports = class CacheItem
         # Call the fetch function
         @_status = status.fetching
 
-        Promise.resolve @fetchFunction @key
+        Promise.try =>
+          @fetchFunction @key
         .then (value) =>
           @value = value
           @_status = status.fetched

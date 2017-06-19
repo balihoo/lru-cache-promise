@@ -5,7 +5,12 @@ CacheItem = require "../src/cache-item"
 testKey = "some key"
 testValue =
   stuff: "things"
+
 testFetchFunction = ->
+
+fetchError = new Error "Loud noises!"
+fetchFailed = ->
+  throw fetchError
 
 describe "cache-item tests", ->
   cacheItem = undefined
@@ -65,6 +70,31 @@ describe "cache-item tests", ->
 
             expect fetchCallCount
             .toBe 1
+
+      context "and it fails to fetch", ->
+        it "returns a promise which rejects when the fetch operation fails", ->
+          cacheItem = new CacheItem
+            key: testKey
+            fetchFunction: fetchFailed
+
+          cacheItem.fetch()
+          .then -> throw new Error "Expected fetch to fail"
+          .catch (err) ->
+            expect(err).toBe fetchError
+
+        context "and a subsequent fetch call is made", ->
+          it "tries to fetch again", ->
+            cacheItem = new CacheItem
+              key: testKey
+              fetchFunction: fetchFailed
+
+            cacheItem.fetch()
+            .then -> throw new Error "Expected fetch to fail"
+            .catch ->
+              cacheItem.fetchFunction = -> return testValue
+              cacheItem.fetch()
+            .then (result) ->
+              expect(result).toBe testValue
 
       context "and its value is being fetched", ->
         context "and the fetch is successful", ->
@@ -135,21 +165,6 @@ describe "cache-item tests", ->
               expect errors.length
               .toBe 3
               expect(e).toBe testError for e in errors
-
-#      context "and status is 'fetched'", ->
-#        it "returns its value", ->
-#          cacheItem = new CacheItem
-#            key: testKey
-#            value: testValue
-#            fetchFunction: testFetchFunction
-#
-#          cacheItem._status = "fetched"
-#
-#          cacheItem.fetch()
-#          .then (result) ->
-#            expect(result)#            .toBe testValue
-
-
 
     context "when the item lacks a fetchFunction", ->
       it "returns its value", ->
