@@ -1,6 +1,6 @@
 Promise = require 'bluebird'
 
-status =
+STATUS =
   initialized: "initialized"
   fetching: "fetching"
   fetched: "fetched"
@@ -10,19 +10,19 @@ module.exports = class CacheItem
   constructor: (opts) ->
     @key = opts.key
     @value = opts.value
-    @_status = status.initialized
     @fetchFunction = opts.fetchFunction
+    @init()
+
+  init: (status = STATUS.initialized) ->
+    @_status = status
     @resolvers = []
     @rejectors = []
 
   fetch: ->
     Promise.try =>
-      if @_status is status.fetchFailed
-        @_status = status.initialized
-        @resolvers = []
-        @rejectors = []
+      @init() if @_status is STATUS.fetchFailed
 
-      if @_status is status.fetched or not @fetchFunction
+      if @_status is STATUS.fetched or not @fetchFunction
         # Return the current value
         return @value
 
@@ -31,21 +31,25 @@ module.exports = class CacheItem
         @resolvers.push resolve
         @rejectors.push reject
 
-      if @_status is status.initialized
+      if @_status is STATUS.initialized
         # Call the fetch function
-        @_status = status.fetching
+        @_status = STATUS.fetching
 
         Promise.try =>
           @fetchFunction @key
         .then (value) =>
           @value = value
-          @_status = status.fetched
+          @_status = STATUS.fetched
 
           r value for r in @resolvers
 
         .catch (err) =>
-          @_status = status.fetchFailed
+          @_status = STATUS.fetchFailed
 
           r err for r in @rejectors
+
+        .finally =>
+          # Clear the old resolvers and rejectors as a matter of good housekeeping
+          @init @_status
 
       return p

@@ -126,6 +126,22 @@ describe "cache-item tests", ->
               expect fetchCallCount
               .toBe 1
 
+          it "removes references to the previous resolve/reject functions", ->
+            cacheItem = new CacheItem
+              key: testKey
+              fetchFunction: ->
+                Promise.delay 100
+                .then -> testValue
+
+            Promise.all [
+              cacheItem.fetch()
+              cacheItem.fetch()
+              cacheItem.fetch()
+            ]
+            .then ->
+              expect(cacheItem.resolvers).toEqual []
+              expect(cacheItem.rejectors).toEqual []
+
         context "and the fetch throws an error", ->
           it "returns a promise which rejects when the fetch operation fails", ->
             fetchCallCount = 0
